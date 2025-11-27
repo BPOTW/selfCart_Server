@@ -14,14 +14,14 @@ connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("Mongo error:", err));
 
-app.post("/api/save-product", async (req, res) => {
-  try {
-    const response = await saveProduct(req.body);
-    res.json(response);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+// app.post("/api/save-product", async (req, res) => {
+//   try {
+//     const response = await saveProduct(req.body);
+//     res.json(response);
+//   } catch (err) {
+//     res.status(400).json({ error: err.message });
+//   }
+// });
 
 app.post("/api/check-barcode", async (req, res) => {
   try {
@@ -47,46 +47,46 @@ app.post("/api/check-barcode", async (req, res) => {
   }
 });
 
-export const saveProduct = async (data) => {
-  try {
-    const { barcode, name, price, stock, category } = data;
+// export const saveProduct = async (data) => {
+//   try {
+//     const { barcode, name, price, stock, category } = data;
 
-    if (!barcode || !name) {
-      throw new Error("Barcode and name are required");
-    }
+//     if (!barcode || !name) {
+//       throw new Error("Barcode and name are required");
+//     }
 
-    // Check if product already exists
-    let product = await ProductSchema.findOne({ barcode });
+//     // Check if product already exists
+//     let product = await ProductSchema.findOne({ barcode });
 
-    if (product) {
-      // Update existing product
-      product.name = name;
-      if (price !== undefined) product.price = price;
-      if (stock !== undefined) product.stock = stock;
-      if (category !== undefined) product.category = category;
+//     if (product) {
+//       // Update existing product
+//       product.name = name;
+//       if (price !== undefined) product.price = price;
+//       if (stock !== undefined) product.stock = stock;
+//       if (category !== undefined) product.category = category;
 
-      await product.save();
-      return { message: "Product updated", product };
-    }
+//       await product.save();
+//       return { message: "Product updated", product };
+//     }
 
-    // Create new product
-    product = new ProductSchema({
-      barcode,
-      name,
-      price,
-      stock,
-      category,
-    });
+//     // Create new product
+//     product = new ProductSchema({
+//       barcode,
+//       name,
+//       price,
+//       stock,
+//       category,
+//     });
 
-    await product.save();
+//     await product.save();
 
-    return { message: "Product created", product };
+//     return { message: "Product created", product };
 
-  } catch (err) {
-    console.error("Save product error:", err.message);
-    throw new Error("Failed to save product");
-  }
-};
+//   } catch (err) {
+//     console.error("Save product error:", err.message);
+//     throw new Error("Failed to save product");
+//   }
+// };
 
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
