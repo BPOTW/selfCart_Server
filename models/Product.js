@@ -8,4 +8,4 @@ const ProductSchema = new Schema({
   category: String,
 });
 
-export default model("Product", ProductSchema);
+export default model("ScannerProducts", ProductSchema);
