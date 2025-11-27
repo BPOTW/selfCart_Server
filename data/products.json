@@ -1,0 +1,29 @@
+{
+  "1889": {
+    "_id": "692872184cd1134d632989f2",
+    "barcode": "1889",
+    "name": "Cloud Shape Fondent Cutter",
+    "price": 350,
+    "stock": 25,
+    "category": "Bakery",
+    "__v": 0
+  },
+  "6989858453005": {
+    "_id": "692871f24cd1134d632989ef",
+    "barcode": "6989858453005",
+    "name": "Star Shape Fondent Cutter",
+    "price": 350,
+    "stock": 25,
+    "category": "Bakery",
+    "__v": 0
+  },
+  "3322541251459": {
+    "_id": "692872364cd1134d632989f5",
+    "barcode": "3322541251459",
+    "name": "Butter Bite Milk Toffee",
+    "price": 350,
+    "stock": 25,
+    "category": "Bakery",
+    "__v": 0
+  }
+}

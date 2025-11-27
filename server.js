@@ -3,6 +3,10 @@ import { connect } from "mongoose";
 import cors from "cors";
 import ProductSchema from "./models/Product.js";
 import dotenv from "dotenv";
+import { loadLocalProducts, saveLocalProducts } from "./cache.js";
+
+let productCache = loadLocalProducts();
+
 
 const app = express();
 
@@ -14,79 +18,62 @@ connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("Mongo error:", err));
 
-// app.post("/api/save-product", async (req, res) => {
-//   try {
-//     const response = await saveProduct(req.body);
-//     res.json(response);
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// });
-
-app.post("/api/check-barcode", async (req, res) => {
-  try {
-    const { barcode } = req.body;
-    console.log(barcode);
-    if (!barcode) {
-      return res.status(400).json({ error: "Barcode is required" });
-    }
-
-    const product = await ProductSchema.findOne({ barcode });
-
-    if (!product) {
-      return res.json({ found: false, message: "Product not found" });
-    }
-
-    res.json({
-      found: true,
-      product: product,
+const restoreFromDB = async () => {
+  if (Object.keys(productCache).length === 0) {
+    console.log("Local cache empty → restoring from MongoDB");
+    const dbProducts = await ProductSchema.find({});
+    
+    dbProducts.forEach((p) => {
+      productCache[p.barcode] = p.toObject();
     });
+
+    saveLocalProducts(productCache);
+  } else {
+    console.log("Loaded products from local storage");
+  }
+};
+
+app.post("/api/save-product", async (req, res) => {
+  try {
+    const productData = req.body;
+
+    // Update cache
+    productCache[productData.barcode] = productData;
+
+    // Save to local file
+    saveLocalProducts(productCache);
+
+    // Save to DB
+    await ProductModel.findOneAndUpdate(
+      { barcode: productData.barcode },
+      productData,
+      { upsert: true, new: true }
+    );
+
+    res.json({ success: true, product: productData });
   } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to save product" });
   }
 });
 
-// export const saveProduct = async (data) => {
-//   try {
-//     const { barcode, name, price, stock, category } = data;
 
-//     if (!barcode || !name) {
-//       throw new Error("Barcode and name are required");
-//     }
+app.post("/api/check-barcode", async (req, res) => {
+  const { barcode } = req.body;
 
-//     // Check if product already exists
-//     let product = await ProductSchema.findOne({ barcode });
+  const product = productCache[barcode];
 
-//     if (product) {
-//       // Update existing product
-//       product.name = name;
-//       if (price !== undefined) product.price = price;
-//       if (stock !== undefined) product.stock = stock;
-//       if (category !== undefined) product.category = category;
+  if (!product) {
+    return res.json({ found: false });
+  }
 
-//       await product.save();
-//       return { message: "Product updated", product };
-//     }
+  return res.json({
+    found: true,
+    product,
+  });
+});
 
-//     // Create new product
-//     product = new ProductSchema({
-//       barcode,
-//       name,
-//       price,
-//       stock,
-//       category,
-//     });
 
-//     await product.save();
-
-//     return { message: "Product created", product };
-
-//   } catch (err) {
-//     console.error("Save product error:", err.message);
-//     throw new Error("Failed to save product");
-//   }
-// };
-
+restoreFromDB();
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
