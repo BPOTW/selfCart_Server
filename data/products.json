@@ -25,5 +25,12 @@
     "stock": 25,
     "category": "Bakery",
     "__v": 0
+  },
+  "7622202377297": {
+    "barcode": "7622202377297",
+    "name": "Cadbury Dairy Milk Chocolate",
+    "price": 100,
+    "stock": 25,
+    "category": "Chocolate"
   }
 }

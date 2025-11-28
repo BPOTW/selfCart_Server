@@ -44,7 +44,7 @@ app.post("/api/save-product", async (req, res) => {
     saveLocalProducts(productCache);
 
     // Save to DB
-    await ProductModel.findOneAndUpdate(
+    await ProductSchema.findOneAndUpdate(
       { barcode: productData.barcode },
       productData,
       { upsert: true, new: true }
